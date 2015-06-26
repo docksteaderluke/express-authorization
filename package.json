@@ -20,7 +20,7 @@
     "url": "https://github.com/docksteaderluke/express-authorize.git"
   },
   "author": {
-    "name" : "Luke Docksteader",  // Forked from npm, author: Support.com, Inc.
+    "name" : "Luke Docksteader",
     "email" : "luke@docksteader.net"
   },
   "contributors": [
