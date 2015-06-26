@@ -1,25 +1,37 @@
 {
-  "name": "express-authorization",
-  "version": "1.0.0",
-  "description": "An authorization system for connect and express applications inspired by Apache's Shiro project.",
+  "name": "express-authorize",
+  "version": "1.0.1",
+  "description": "An authorization layer for connect and express applications inspired by Apache's Shiro project. Fork of express-authorize.",
   "main": "lib",
   "scripts": {
     "test": "mocha -R spec test",
     "dist": "mkdir -p dist; browserify -s authorization lib/consider.js -o dist/authorization.js; uglifyjs dist/authorization.js -o dist/authorization.min.js"
   },
   "keywords": [
-    "express",
-    "connect",
+    "acl",
     "authorization",
+    "connect",
+    "express",
+    "permission",
     "shiro"
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/support-dot-com/express-authorization.git"
+    "url": "https://github.com/docksteaderluke/express-authorize.git"
   },
-  "author": "Support.com, Inc.",
+  "author": {
+    "name" : "Luke Docksteader",  // Forked from npm, author: Support.com, Inc.
+    "email" : "luke@docksteader.net"
+  },
   "contributors": [
-    "Charles Eads"
+    "Charles Eads",
+    "Luke Docksteader"
   ],
-  "license": "MIT"
+  "license": "MIT",
+
+  "devDependencies": {
+    "gulp": "^3.9.0",
+    "gulp-eslint": "^0.14.0",
+    "gulp-plumber": "^1.0.1"
+  }
 }
