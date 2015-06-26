@@ -49,6 +49,21 @@ app.get('/restricted',
    * Permission parts can contain lists delimited by commas (,).
    * Wildcard ? and * can be used to match one or more characters within an expression part.
    * Examples: system:* | activity:create,update,delete
+   
+
+### Initialization
+  
+  Create a new authorizer:
+  ```js
+  var ExpressAuthorizer = require('express-authorize')
+  var authorizer = new ExpressAuthorizer({
+    onDenied : function(req, res, next) {
+      res.status(403).json({
+        msg : 'You do not have the required permissions to access this resource'
+      })
+    }
+  })
+  ```
 
 ### Permission Query
 
@@ -82,7 +97,7 @@ authorization.withSubject | authorization.withPermissions -> claim
 
   __express-authorize__ uses a fluent API to generate express middleware for enforcing permissions.
   ```js
-  authorization.ensureRequest.isPermitted("restricted:view")
+  authorization.isPermitted("restricted:view")
   ```
   To generate an express middleware, you write a call chain starting with a reference to __express-authorize__
   and ending in a call to __isPermitted__.  The call to __isPermitted__ returns a connect/express compliant middleware function.
@@ -90,9 +105,9 @@ authorization.withSubject | authorization.withPermissions -> claim
   By default, __express-authorize__ sources permissions from the session through references to session.user.permissions or session.permissions.
   To consider alternative permission sources, __withSubject__ or __withPermissions__ callbacks (asynchronous or immediate) are used.
   ```js
-  authorization.ensureRequest
-    .withPermissions(function (req, res, done) { done(["identity:*"]); })
-    .isPermitted("identity:edit");
+  authorization.
+    .withPermissions(["identity:*"])
+    .isPermitted("identity:edit")
   ```
 
   __onDenied__ can be used to provide a custom response function.
@@ -100,8 +115,6 @@ authorization.withSubject | authorization.withPermissions -> claim
   All of these options (__withSubject__, __withPermissions__, and __onDenied__)
   can be set either through chained API calls, or on the __ensureRequest.options__ object.
   When set on the global __authorization.options__, these establish new defaults.
-
-  A custom __new authorization()__ object can be constructed for use if required.
 
 ## License
 
