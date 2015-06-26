@@ -1,12 +1,16 @@
 {
-  "name": "express-authorization-example",
+  "name": "express-authorize-example",
   "version": "0.0.1",
   "private": true,
   "scripts": {
     "start": "node app.js"
   },
   "dependencies": {
-    "express": "~3.4.4",
-    "ejs": "~0.8.4"
+    "body-parser": "^1.13.1",
+    "express": "^4.12.4",
+    "express-session": "^1.11.2",
+    "ejs": "~0.8.4",
+    "method-override": "^2.3.3",
+    "morgan": "^1.5.3"
   }
 }

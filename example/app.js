@@ -2,34 +2,38 @@
  * Module dependencies.
  */
 
-var express = require('express');
-var http = require('http');
-var path = require('path');
-var authorization = require('../');
+var Authorization = require('../')
+  , bodyParser = require('body-parser')
+  , express = require('express')
+  , http = require('http')
+  , methodOverride = require('method-override')
+  , path = require('path')
+  , session = require('express-session')
 
-var app = express();
+// Create a new express app
+var app = express()
+
+// Allow Header X-HTTP-Method-Override where modifying HTTP method is not possible
+app.use(methodOverride('X-HTTP-Method-Override'))
+
+// Body parser
+app.use(bodyParser.json())
+app.use(bodyParser.urlencoded({
+  extended : false
+}))
+
+// Sessions
+app.use(session({
+  secret: 'keyboard cat',
+  resave: false,
+  saveUninitialized: false,
+  cookie: { secure: false }
+}))
 
 // all environments
-app.set('port', process.env.PORT || 3000);
+app.set('port', process.env.PORT || 4000);
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
-app.use(express.favicon());
-app.use(express.logger('dev'));
-app.use(express.json());
-app.use(express.urlencoded());
-app.use(express.methodOverride());
-app.use(express.cookieParser('your secret here'));
-app.use(express.session());
-app.use(app.router);
-app.use(express.static(path.join(__dirname, 'public')));
-
-// development only
-if ('development' == app.get('env')) {
-  app.use(express.errorHandler());
-}
-
-// setup permission middleware
-var ensureNounVerb = authorization.ensureRequest.isPermitted('noun:verb');
 
 // Define Routes
 app.get('/', function (req, res) {
@@ -43,7 +47,7 @@ app.get('/login', function (req, res) {
 app.post('/login', function (req, res) {
   req.session.user = {
     username: "root",
-    permissions: [ 'noun:*' ]
+    permissions: [ 'account:view,edit', 'payment:view' ]
   };
   res.redirect('/');
 });
@@ -53,9 +57,57 @@ app.get('/logout', function (req, res) {
   res.redirect('/');
 });
 
-app.get('/assert', ensureNounVerb, function (req, res) {
+// Initialize the authorizer
+var authorizer = new Authorization({
+  onDenied : function(req, res, next) {
+    res.redirect('/login')
+  }
+})
+
+// Session
+app.get('/account', authorizer.isPermitted('account:view'), function (req, res) {
   res.render('assert', { });
 });
+
+app.get('/account/edit', authorizer.isPermitted('account:view', 'account:edit'), function (req, res) {
+  res.render('assert', { });
+});
+
+app.get('/account/payment', authorizer.isPermitted('account:view', 'payment:view'), function (req, res) {
+  res.render('assert', { });
+});
+
+// withSubject
+var usr = {
+  username : 'someotheruser',
+  permissions : [
+    'subject:yes'
+  ]
+}
+app.get('/subject/yes', authorizer.withSubject(usr).isPermitted('subject:yes'), function (req, res) {
+  res.render('assert', { });
+});
+
+app.get('/subject/no', authorizer.withSubject(usr).isPermitted('subject:no'), function (req, res) {
+  res.render('assert', { });
+});
+
+// withPermissions
+var perms = [
+  'perm:yes'
+]
+app.get('/perm/yes', authorizer.withPermissions(perms).isPermitted('perm:yes'), function (req, res) {
+  res.render('assert', { });
+});
+
+app.get('/perm/no', authorizer.withPermissions(perms).isPermitted('perm:no'), function (req, res) {
+  res.render('assert', { });
+});
+
+app.use(function(err, req, res, next) {
+  console.log(err)
+  res.status(403).json(err.msg)
+})
 
 // Start Server
 http.createServer(app).listen(app.get('port'), function() {

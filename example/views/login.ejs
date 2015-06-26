@@ -7,15 +7,27 @@
 <h1>Express Authorization Example - Login</h1>
 
 <p>
-  This express website serves as an example of the "express-authorization" module.
-  "express-authorization" is an express/connect middleware module for enforcing an
+  This express website serves as an example of the "express-authorize" module.
+  "express-authorize" is an express/connect middleware module for enforcing an
   Apache Shiro inspired authorization system.
 </p>
 
 <p>
-  The <a href="assert">/assert</a> page is only available to users that have the "noun:verb" permission.
-  "express-authorization" is used to enforce this rule.  Follow the links below to
-  control your authentication state and attempt to visit the <a href="assert">/assert</a> page.
+  Test it out with the following pages:
+  <ul>
+    <h3>Session</h3>
+    <li><a href="/account">/account</a> – Requires the "account:view" permission</li>
+    <li><a href="/account/edit">/account/edit</a> – Requires the "account:view" and "account:edit" permissions</li>
+    <li><a href="/account/payment">/account/payments</a> – Requires the "account:view" and "payment:view" permissions</li>
+
+    <h3>withSubject (session-independent)</h3>
+    <li><a href="/subject/yes">/subject/yes</a> – Requires the "subject:yes" permission</li>
+    <li><a href="/subject/no">/subject/no</a> – Requires the "subject:no" permission</li>
+
+    <h3>withPermissions (session-independent)</h3>
+    <li><a href="/perm/yes">/perm/yes</a> – Requires the "perm:yes" permission</li>
+    <li><a href="/perm/no">/perm/no</a> – Requires the "perm:no" permission</li>
+  </ul>
 </p>
 
 <form method="POST" action="/login">
