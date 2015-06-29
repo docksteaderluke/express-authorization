@@ -1,6 +1,6 @@
 {
   "name": "express-authorize",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "An authorization layer for connect and express applications inspired by Apache's Shiro project. Fork of express-authorize.",
   "main": "lib",
   "scripts": {
@@ -20,15 +20,14 @@
     "url": "https://github.com/docksteaderluke/express-authorize.git"
   },
   "author": {
-    "name" : "Luke Docksteader",
-    "email" : "luke@docksteader.net"
+    "name": "Luke Docksteader",
+    "email": "luke@docksteader.net"
   },
   "contributors": [
     "Charles Eads",
     "Luke Docksteader"
   ],
   "license": "MIT",
-
   "devDependencies": {
     "gulp": "^3.9.0",
     "gulp-eslint": "^0.14.0",
