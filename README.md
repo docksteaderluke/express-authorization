@@ -4,18 +4,20 @@ A fork of express-authorization optimized for server-side authorization with a s
 This module is an express/connect middleware module for enforcing an Apache Shiro inspired authorization system.
 
 ```js
-var express = require('express');
-var authorization = require('express-authorize');
-var app = express();
+var express = require('express')
+var ExpressAuthorizer = require('express-authorize')
+var app = express()
+
+// Initialize a new Authorizer
+var authorizer = new ExpressAuthorizer(/* options */)
 
 // Consider an authenticated user in the express session:
 // req.session.user.permissions = ["restricted:*"]
 
-app.get('/restricted',
-  authorization.ensureRequest.isPermitted("restricted:view"),
-  function(req, res) {
-    ...
-  });
+app.get('/restricted', authorizer("restricted:view"), function(req, res) {
+  // Restricted content
+  ...
+})
 ```
 
 ## Installation
@@ -56,32 +58,71 @@ app.get('/restricted',
   Create a new authorizer:
   ```js
   var ExpressAuthorizer = require('express-authorize')
-  var authorizer = new ExpressAuthorizer({
-    onDenied : function(req, res, next) {
-      res.status(403).json({
-        msg : 'You do not have the required permissions to access this resource'
-      })
-    }
-  })
+  var authorizer = new ExpressAuthorizer(options)
   ```
 
+### Options
+Setting options at initialization sets the default for that authorizer. The following options are available:
+
+- _subject_ - A subject, usually a user, is expected to be represented by an object with a permissions property referring to either a single permission or an array of permissions. Defaults to req.user or req.session.user.
+- _permissions_ - Permissions statements are strings that can be specified in parameter lists that may include arrays of composited permissions. Ignored if non-default subject is specified.
+- _onDenied_ - Callback function for when permission is denied. Defaults to setting the res.status to 403 and passing next with a 'Permission denied' error.
+
+All of these options can be set either through chained API calls, or on the __ExpressAuthorizer.options__ object. When set on the global __ExpressAuthorizer.options__, these establish new defaults.
+
+#### Setting the default subject
+
+```js
+// Get a user with a permissions parameter
+var user = {
+  permissions : [ 'account:view', 'payment:view' ]
+}
+var authorizer = new ExpressAuthorizer({
+  subject : user
+})
+```
+
+#### Setting the default permissions
+```js
+// Get an array of permissions
+var permissions = [ 'account:view', 'payment:view' ]
+var authorizer = new ExpressAuthorizer({
+  permissions : permissions
+})
+```
+
+#### Setting the default onDenied callback
+```js
+var authorizer = new ExpressAuthorizer({
+  onDenied : function(req, res, next) {
+    res.redirect('/login')
+  }
+})
+```
+
 ### Permission Query
-
-  Permissions statements are strings that can be specified in parameter lists that may include arrays of composited permissions.
-  A subject, usually a user, is expected to be represented by an object with a permissions property referring to either
-  a single permission or an array of permissions.
-
+  Options can be overridden in an ad-hoc manner using a permission query.
   In the permission query API, a permission source is placed under consideration and compiled into a claim that is
   queried to confirm permitted permissions.
 
 ```js
-authorization
+authorizer
   .withSubject(user)
   .isPermitted("express:coding")
-authorization
+  
+authorizer
   .withPermissions("source:edit", "express:*")
   .isPermitted("express:coding")
+  
+authorizer
+  .withSubject(user)
+  .onDenied(function(req, res, next) {
+    res.redirect('/login')
+  })
+  .isPermitted("express:coding")
 ```
+
+Methods can be chained in combination. Note that specifying a subject source always supercedes specifying a permission source. Only specify one source.
 
 #### From subject or permission list -> claim -> isPermitted
 ```js
@@ -103,7 +144,7 @@ authorization.withSubject | authorization.withPermissions -> claim
   and ending in a call to __isPermitted__.  The call to __isPermitted__ returns a connect/express compliant middleware function.
 
   By default, __express-authorize__ sources permissions from the session through references to session.user.permissions or session.permissions.
-  To consider alternative permission sources, __withSubject__ or __withPermissions__ callbacks (asynchronous or immediate) are used.
+  To consider alternative permission sources, __withSubject__ or __withPermissions__ are used.
   ```js
   authorization.
     .withPermissions(["identity:*"])
@@ -111,10 +152,6 @@ authorization.withSubject | authorization.withPermissions -> claim
   ```
 
   __onDenied__ can be used to provide a custom response function.
-
-  All of these options (__withSubject__, __withPermissions__, and __onDenied__)
-  can be set either through chained API calls, or on the __ensureRequest.options__ object.
-  When set on the global __authorization.options__, these establish new defaults.
 
 ## License
 
