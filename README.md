@@ -5,11 +5,11 @@ This module is an express/connect middleware module for enforcing an Apache Shir
 
 ```js
 var express = require('express')
-var ExpressAuthorizer = require('express-authorize')
 var app = express()
+var authorizer = require('express-authorize')(/* options */)
 
-// Initialize a new Authorizer
-var authorizer = new ExpressAuthorizer(/* options */)
+// Initialize a new Authorizer with different options
+var anotherAuthorizer = new authorizer.Authorizer(/* options */)
 
 // Consider an authenticated user in the express session:
 // req.session.user.permissions = ["restricted:*"]
@@ -51,14 +51,13 @@ app.get('/restricted', authorizer("restricted:view"), function(req, res) {
    * Permission parts can contain lists delimited by commas (,).
    * Wildcard ? and * can be used to match one or more characters within an expression part.
    * Examples: system:* | activity:create,update,delete
-   
+
 
 ### Initialization
-  
+
   Create a new authorizer:
   ```js
-  var ExpressAuthorizer = require('express-authorize')
-  var authorizer = new ExpressAuthorizer(options)
+  var authorizer = require('express-authorize')(options)
   ```
 
 ### Options
@@ -68,7 +67,7 @@ Setting options at initialization sets the default for that authorizer. The foll
 - _permissions_ - Permissions statements are strings that can be specified in parameter lists that may include arrays of composited permissions. Ignored if non-default subject is specified.
 - _onDenied_ - Callback function for when permission is denied. Defaults to setting the res.status to 403 and passing next with a 'Permission denied' error.
 
-All of these options can be set either through chained API calls, or on the __ExpressAuthorizer.options__ object. When set on the global __ExpressAuthorizer.options__, these establish new defaults.
+All of these options can be set either through chained API calls, or on the __Authorizer.options__ object. When set on the global __Authorizer.options__, these establish new defaults.
 
 #### Setting the default subject
 
@@ -77,27 +76,21 @@ All of these options can be set either through chained API calls, or on the __Ex
 var user = {
   permissions : [ 'account:view', 'payment:view' ]
 }
-var authorizer = new ExpressAuthorizer({
-  subject : user
-})
+authorizer.subject = user
 ```
 
 #### Setting the default permissions
 ```js
 // Get an array of permissions
 var permissions = [ 'account:view', 'payment:view' ]
-var authorizer = new ExpressAuthorizer({
-  permissions : permissions
-})
+authorizer.permissions = permissions
 ```
 
 #### Setting the default onDenied callback
 ```js
-var authorizer = new ExpressAuthorizer({
-  onDenied : function(req, res, next) {
-    res.redirect('/login')
-  }
-})
+authorizer.onDenied : function(req, res, next) {
+  res.redirect('/login')
+}
 ```
 
 ### Permission Query
@@ -109,11 +102,11 @@ var authorizer = new ExpressAuthorizer({
 authorizer
   .withSubject(user)
   .isPermitted("express:coding")
-  
+
 authorizer
   .withPermissions("source:edit", "express:*")
   .isPermitted("express:coding")
-  
+
 authorizer
   .withSubject(user)
   .onDenied(function(req, res, next) {
