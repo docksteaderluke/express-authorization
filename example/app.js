@@ -5,7 +5,8 @@
 'use strict'
 
 var authorizer = require('../')
-  , bodyParser = require('body-parser')
+
+var bodyParser = require('body-parser')
   , express = require('express')
   , http = require('http')
   , methodOverride = require('method-override')
@@ -59,20 +60,19 @@ app.get('/logout', function (req, res) {
   res.redirect('/')
 })
 
-// Initialize the authorizer
-authorizer.options.onDenied = function(req, res, next) {
-  res.redirect('/login')
+// Set the default options
+authorizer.options = {
+  onDenied : function(req, res, next) {
+    res.redirect('/login')
+  }
 }
-
 // Session
 app.get('/account', authorizer.isPermitted('account:view'), function (req, res) {
   res.render('assert', { })
 })
-
 app.get('/account/edit', authorizer.isPermitted('account:view', 'account:edit'), function (req, res) {
   res.render('assert', { })
 })
-
 app.get('/account/payment', authorizer.isPermitted('account:view', 'payment:view'), function (req, res) {
   res.render('assert', { })
 })
@@ -99,7 +99,6 @@ var perms = [
 app.get('/perm/yes', authorizer.withPermissions(perms).isPermitted('perm:yes'), function (req, res) {
   res.render('assert', { })
 })
-
 app.get('/perm/no', authorizer.withPermissions(perms).isPermitted('perm:no'), function (req, res) {
   res.render('assert', { })
 })

@@ -6,7 +6,11 @@ This module is an express/connect middleware module for enforcing an Apache Shir
 ```js
 var express = require('express')
 var app = express()
-var authorizer = require('express-authorize')(/* options */)
+var authorizer = require('express-authorize')
+
+authorizer.options = {
+  /* options */
+}
 
 // Initialize a new Authorizer with different options
 var anotherAuthorizer = new authorizer.Authorizer(/* options */)
@@ -57,7 +61,7 @@ app.get('/restricted', authorizer("restricted:view"), function(req, res) {
 
   Create a new authorizer:
   ```js
-  var authorizer = require('express-authorize')(options)
+  var authorizer = require('express-authorize')
   ```
 
 ### Options
@@ -76,19 +80,19 @@ All of these options can be set either through chained API calls, or on the __Au
 var user = {
   permissions : [ 'account:view', 'payment:view' ]
 }
-authorizer.subject = user
+authorizer.options.subject = user
 ```
 
 #### Setting the default permissions
 ```js
 // Get an array of permissions
 var permissions = [ 'account:view', 'payment:view' ]
-authorizer.permissions = permissions
+authorizer.options.permissions = permissions
 ```
 
 #### Setting the default onDenied callback
 ```js
-authorizer.onDenied : function(req, res, next) {
+authorizer.options.onDenied = function(req, res, next) {
   res.redirect('/login')
 }
 ```
