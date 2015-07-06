@@ -50,7 +50,7 @@ app.get('/login', function (req, res) {
 app.post('/login', function (req, res) {
   req.session.user = {
     username    : "root",
-    permissions : [ 'account:view,edit', 'payment:view' ]
+    permissions : [ 'account:view,edit', 'payment:view', 'user:root:view' ]
   }
   res.redirect('/')
 })
@@ -68,39 +68,41 @@ authorizer.options = {
 }
 // Session
 app.get('/account', authorizer.isPermitted('account:view'), function (req, res) {
-  res.render('assert', { })
+  res.render('assert', { authenticated : req.session.user ? true : false })
 })
 app.get('/account/edit', authorizer.isPermitted('account:view', 'account:edit'), function (req, res) {
-  res.render('assert', { })
+  res.render('assert', { authenticated : req.session.user ? true : false })
 })
 app.get('/account/payment', authorizer.isPermitted('account:view', 'payment:view'), function (req, res) {
-  res.render('assert', { })
+  res.render('assert', { authenticated : req.session.user ? true : false })
 })
 
 // withSubject
 var usr = {
-  username    : 'someotheruser',
+  username    : 'userxyz',
   permissions : [
-    'subject:yes'
+    'subject:yes',
+    'user:*:retrieve'
   ]
 }
 app.get('/subject/yes', authorizer.withSubject(usr).isPermitted('subject:yes'), function (req, res) {
-  res.render('assert', { })
+  res.render('assert', { authenticated : req.session.user ? true : false })
 })
 
 app.get('/subject/no', authorizer.withSubject(usr).isPermitted('subject:no'), function (req, res) {
-  res.render('assert', { })
+  res.render('assert', { authenticated : req.session.user ? true : false })
 })
 
 // withPermissions
 var perms = [
-  'perm:yes'
+  'perm:yes',
+  'root:yes'
 ]
 app.get('/perm/yes', authorizer.withPermissions(perms).isPermitted('perm:yes'), function (req, res) {
-  res.render('assert', { })
+  res.render('assert', { authenticated : req.session.user ? true : false })
 })
 app.get('/perm/no', authorizer.withPermissions(perms).isPermitted('perm:no'), function (req, res) {
-  res.render('assert', { })
+  res.render('assert', { authenticated : req.session.user ? true : false })
 })
 
 app.use(function(err, req, res, next) {

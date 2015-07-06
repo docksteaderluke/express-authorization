@@ -8,8 +8,12 @@
 
     <p>You are currently logged in and are permitted to receive content authorized with the "noun:verb" permission.</p>
 
-    <p>Click <a href="/logout">here to logout</a> or <a href="/">here to return to the home page</a>.
-    </p>
+    <% if (authenticated) { %>
+      <p>Click <a href="/logout">here to logout</a> or <a href="/">here to return to the home page</a>.</p>
+    <% } else { %>
+      <p>Click <a href="/">here to return to the home page</a>.</p>
+    <% } %>
+
 
   </body>
 </html>
